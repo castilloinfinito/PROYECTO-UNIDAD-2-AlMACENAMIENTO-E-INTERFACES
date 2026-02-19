@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabSystem Pro | Panel de Control</title>
+    <style>
+        :root { --main: #0f172a; --accent: #3b82f6; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; }
+        body { display: flex; font-family: 'Inter', sans-serif; margin: 0; background: #f1f5f9; color: #1e293b; }
+        
+        /* Sidebar */
+        nav { width: 260px; background: var(--main); color: white; height: 100vh; padding: 20px; position: fixed; }
+        nav h2 { color: var(--accent); border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        nav ul { list-style: none; padding: 0; }
+        nav li { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; }
+        nav li:hover { background: #1e293b; color: var(--accent); }
+        nav li.active { background: var(--accent); color: white; }
+
+        /* Contenido Principal */
+        main { margin-left: 280px; padding: 40px; flex: 1; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        /* Barra de Herramientas */
+        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
+        
+        /* Formulario */
+        .grid-form { display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 12px; font-weight: 600; color: #64748b; }
+        input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+        
+        /* Botones Generales */
+        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-create { background: var(--success); color: white; }
+        .btn-list { background: var(--main); color: white; }
+        .btn-save { background: var(--accent); color: white; }
+        .btn-cancel { background: #94a3b8; color: white; }
+        
+        /* Tabla */
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .badge-edit { color: var(--warning); cursor: pointer; border: none; background: none; font-size: 1.2rem; }
+        .badge-delete { color: var(--danger); cursor: pointer; border: none; background: none; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h2>🔬 LabSystem v2</h2>
+        <ul id="menu-modulos">
+            <li onclick="switchModulo('pacientes')" id="li-pacientes" class="active">Pacientes</li>
+            <li onclick="switchModulo('medicos')" id="li-medicos">Médicos</li>
+            <li onclick="switchModulo('examenes')" id="li-examenes">Órdenes / Exámenes</li>
+            <li onclick="switchModulo('resultados')" id="li-resultados">Resultados</li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="card">
+            <h1 id="mod-title">Gestión de PACIENTES</h1>
+            
+            <div class="toolbar">
+                <button class="btn btn-create" onclick="nuevoRegistro()">➕ Crear Nuevo</button>
+                <button class="btn btn-list" onclick="cargarDatos()">🔄 Listar / Actualizar Tabla</button>
+            </div>
+
+            <div id="form-area" style="display: none;">
+                <h3 id="form-label">Nuevo Registro</h3>
+                <form id="dynamic-form">
+                    <div id="form-inputs" class="grid-form">
+                        </div>
+                </form>
+            </div>
+
+            <table id="data-table">
+                <thead id="table-head"></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        let moduloActual = 'pacientes';
+        let editandoId = null;
+
+        const config = {
+            pacientes: {
+                labels: ['Nombre', 'CI', 'Teléfono'], keys: ['nombre', 'ci', 'telefono'],
+                fields: [{ id: 'nombre', label: 'Nombre Completo', type: 'text' }, { id: 'ci', label: 'Cédula', type: 'text' }, { id: 'telefono', label: 'Teléfono', type: 'text' }]
+            },
+            medicos: {
+                labels: ['Nombre', 'Especialidad', 'MPPS'], keys: ['nombre', 'especialidad', 'mpps'],
+                fields: [{ id: 'nombre', label: 'Médico', type: 'text' }, { id: 'especialidad', label: 'Especialidad', type: 'text' }, { id: 'mpps', label: 'MPPS', type: 'text' }]
+            },
+            examenes: {
+                labels: ['N° Orden', 'Examen', 'Precio'], keys: ['numeroOrden', 'nombre', 'precio'],
+                fields: [{ id: 'numeroOrden', label: 'N° Orden', type: 'text' }, { id: 'nombre', label: 'Examen', type: 'text' }, { id: 'precio', label: 'Precio', type: 'number' }, { id: 'medicoId', label: 'ID Médico', type: 'text' }]
+            },
+            resultados: {
+                labels: ['N° Orden', 'Valor', 'Fecha'], keys: ['numeroOrden', 'valor', 'fecha'],
+                fields: [{ id: 'numeroOrden', label: 'N° Orden', type: 'text' }, { id: 'valor', label: 'Resultado', type: 'text' }, { id: 'pacienteId', label: 'ID Paciente', type: 'text' }]
+            }
+        };
+
+        // --- FUNCIONES DE INTERFAZ ---
+
+        function nuevoRegistro() {
+            editandoId = null;
+            document.getElementById('dynamic-form').reset();
+            document.getElementById('form-area').style.display = 'block';
+            document.getElementById('form-label').innerText = "Añadir Nuevo " + moduloActual;
+            generarFormulario();
+        }
+
+        function switchModulo(mod) {
+            moduloActual = mod;
+            document.querySelectorAll('#menu-modulos li').forEach(el => el.classList.remove('active'));
+            document.getElementById(`li-${mod}`).classList.add('active');
+            document.getElementById('mod-title').innerText = `Gestión de ${mod.toUpperCase()}`;
+            document.getElementById('form-area').style.display = 'none';
+            cargarDatos();
+        }
+
+        function generarFormulario() {
+            const container = document.getElementById('form-inputs');
+            const fields = config[moduloActual].fields;
+            container.innerHTML = fields.map(f => `
+                <div class="input-group">
+                    <label>${f.label}</label>
+                    <input type="${f.type}" id="field-${f.id}" required>
+                </div>
+            `).join('') + `
+                <button type="submit" class="btn btn-save">💾 Guardar</button>
+                <button type="button" class="btn btn-cancel" onclick="document.getElementById('form-area').style.display='none'">✖ Cerrar</button>
+            `;
+        }
+
+        // --- OPERACIONES CRUD (FRONTEND) ---
+
+        // LISTAR
+        async function cargarDatos() {
+            const head = document.getElementById('table-head');
+            const body = document.getElementById('table-body');
+            const conf = config[moduloActual];
+
+            head.innerHTML = `<tr>${conf.labels.map(l => `<th>${l}</th>`).join('')}<th>Acciones</th></tr>`;
+            const res = await fetch(`/api/${moduloActual}`);
+            const data = await res.json();
+
+            body.innerHTML = data.map(item => `
+                <tr>
+                    ${conf.keys.map(key => `<td>${item[key] || '-'}</td>`).join('')}
+                    <td>
+                        <button class="badge-edit" onclick='prepararEdicion(${JSON.stringify(item)})'>✏️</button>
+                        <button class="badge-delete" onclick="eliminar('${item._id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ACTUALIZAR (Preparar)
+        function prepararEdicion(item) {
+            nuevoRegistro();
+            editandoId = item._id;
+            document.getElementById('form-label').innerText = "Actualizar Registro";
+            config[moduloActual].fields.forEach(f => {
+                document.getElementById(`field-${f.id}`).value = item[f.id] || '';
+            });
+        }
+
+        // CREAR / ACTUALIZAR (Ejecutar)
+        document.getElementById('dynamic-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {};
+            config[moduloActual].fields.forEach(f => { payload[f.id] = document.getElementById(`field-${f.id}`).value; });
+
+            const method = editandoId ? 'PUT' : 'POST';
+            const url = editandoId ? `/api/${moduloActual}/${editandoId}` : `/api/${moduloActual}`;
+
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                document.getElementById('form-area').style.display = 'none';
+                cargarDatos();
+            }
+        };
+
+        // ELIMINAR
+        async function eliminar(id) {
+            if(confirm('¿Seguro que desea eliminar este registro?')) {
+                await fetch(`/api/${moduloActual}/${id}`, { method: 'DELETE' });
+                cargarDatos();
+            }
+        }
+
+        window.onload = () => cargarDatos();
+    </script>
+</body>
+</html>
