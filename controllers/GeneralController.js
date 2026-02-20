@@ -1,14 +1,16 @@
 
+// declaraccion de variable
   const { Paciente, Medico, Examen, Usuario, Resultado } = require('../models/LaboratorioModels');
-
+// uso de clase como plantilla general y controlador generico  unico POO
 class GenericController {
   constructor(model) {
     this.model = model;
   }
-
+  // INCLUSION DE FONNCIONES PARA OPERACIONES CRUD, USO DE PROMESAS
+  // CON async-await para ordenar ejecucion secuelcial de la funcion
   listar = async (req, res) => {
     try {
-      // Intenta popular campos comunes si existen en el modelo
+      // uso popular campos comunes si existen en el modelo
       const data = await this.model.find()
         .populate('medicoId')
         .populate('pacienteId')
@@ -19,6 +21,7 @@ class GenericController {
     }
   }
 
+// uso de promesas para crear documentos de la coleccion
   crear = async (req, res) => {
     try {
       const nuevo = await this.model.create(req.body);
@@ -28,6 +31,7 @@ class GenericController {
     }
   }
 
+// uso de promesas para actualizar documentos.
   actualizar = async (req, res) => {
     try {
       const editado = await this.model.findByIdAndUpdate(
@@ -41,6 +45,7 @@ class GenericController {
       res.status(400).json({ error: e.message });
     }
   }
+ // eliminar documento por id, verificacion de errores, uso de promesas
 
   eliminar = async (req, res) => {
     try {
@@ -52,7 +57,7 @@ class GenericController {
     }
   }
 }
-
+// unificacion de formato para exportar los metododos de control de las solicitudes
 module.exports = {
   PacienteCtrl: new GenericController(Paciente),
   MedicoCtrl: new GenericController(Medico),
