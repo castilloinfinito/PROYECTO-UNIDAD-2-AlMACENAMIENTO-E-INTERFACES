@@ -1,6 +1,6 @@
 //importacion de los modulos requeridos para el enrutamiento dinamico
 const express = require('express');
-const Ctrl = require('../controllers/GenericController');
+const Ctrl = require('../controllers/GeneralController');
 const router = express.Router();
 
 // Ctrl:Importas un objeto que contiene toda la lógica de control (los controladores)
