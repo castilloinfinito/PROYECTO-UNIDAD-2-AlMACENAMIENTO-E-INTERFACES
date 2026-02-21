@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Paciente, Medico, Examen, Usuario } = require('../models/LaboratorioModels');
+const { Paciente, Medico, Examen, Usuario } = require('./models/LaboratorioModels');
 
 async function seed() {
   await mongoose.connect('mongodb://127.0.0.1:27017/laboratorio_pro');
