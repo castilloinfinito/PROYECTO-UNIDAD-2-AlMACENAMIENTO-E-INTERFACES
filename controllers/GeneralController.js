@@ -8,19 +8,27 @@ class GenericController {
   }
   // INCLUSION DE FUNCIONES PARA OPERACIONES CRUD, USO DE PROMESAS
   // CON async-await para ordenar ejecucion secuelcial de la funcion
-  listar = async (req, res) => {
-    try {
-      // uso popular campos comunes si existen en el modelo
-      const data = await this.model.find()
-        .populate('medicoId')
-        .populate('pacienteId')
-        .sort({ createdAt: -1 });
-      res.json(data);
-    } catch (e) {
-      res.status(500).json({ error: e.message });
-    }
-  }
+   listar = async (req, res) => {
+  try {
+   let query = this.model.find();
 
+   // Verificamos qué campos tiene el esquema actual antes de hacer populate
+   const paths = this.model.schema.paths;
+
+   if (paths.medicoId) {
+    query = query.populate('medicoId');
+   }
+   
+   if (paths.pacienteId) {
+    query = query.populate('pacienteId');
+   }
+
+   const data = await query.sort({ createdAt: -1 });
+   res.json(data);
+  } catch (e) {
+   res.status(500).json({ error: e.message });
+  }
+ }
 // uso de promesas para crear documentos de la coleccion
   crear = async (req, res) => {
     try {
