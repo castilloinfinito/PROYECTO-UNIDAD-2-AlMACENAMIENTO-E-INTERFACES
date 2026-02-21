@@ -1,12 +1,12 @@
 
-// declaraccion de variable
+// declaracion de variable
   const { Paciente, Medico, Examen, Usuario, Resultado } = require('../models/LaboratorioModels');
 // uso de clase como plantilla general y controlador generico  unico POO
 class GenericController {
   constructor(model) {
     this.model = model;
   }
-  // INCLUSION DE FONNCIONES PARA OPERACIONES CRUD, USO DE PROMESAS
+  // INCLUSION DE FUNCIONES PARA OPERACIONES CRUD, USO DE PROMESAS
   // CON async-await para ordenar ejecucion secuelcial de la funcion
   listar = async (req, res) => {
     try {

@@ -1,29 +1,69 @@
-// definicion primarias de constantes 
-
 const express = require('express');
 const path = require('path');
-const conectarDB = require('./database/db');
-const apiRoutes = require('./routes/apiRoutes');
+
+// Intentamos cargar la configuración de la base de datos y rutas
+let conectarDB;
+let apiRoutes;
+
+try {
+    conectarDB = require('./database/db');
+    apiRoutes = require('./routes/apiRoutes');
+} catch (err) {
+    console.error("❌ ERROR CRÍTICO DE IMPORTACIÓN:");
+    console.error("Asegúrate de que las carpetas 'database' y 'routes' existan.");
+    console.error(err.message);
+}
 
 const app = express();
 
-// Conectar a Mongo
-conectarDB();
-
-// Middlewares
+// --- CONFIGURACIÓN DE MIDDLEWARES ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Servir archivos estáticos (CSS, imágenes) desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Motor de plantillas
+// --- CONFIGURACIÓN DE VISTAS (EJS) ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Rutas
-app.get('/', (req, res) => res.render('index'));
-app.use('/api', apiRoutes);
+// --- CONEXIÓN A MONGODB ---
+if (conectarDB) {
+    conectarDB();
+}
 
+// --- DEFINICIÓN DE RUTAS ---
+
+// 1. Ruta para la Interfaz Web (Frontend)
+app.get('/', (req, res) => {
+    try {
+        res.render('index');
+    } catch (err) {
+        res.status(500).send("Error al renderizar la vista: " + err.message);
+    }
+});
+
+// 2. Rutas de la API (Backend para Thunder Client)
+if (apiRoutes) {
+    app.use('/api', apiRoutes);
+} else {
+    console.log("⚠️ Advertencia: Las rutas de la API no están cargadas.");
+}
+
+// --- INICIO DEL SERVIDOR ---
 const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor en: http://localhost:${PORT}`);
+const server = app.listen(PORT, () => {
+    console.log("==============================================");
+    console.log(`🚀 LAB-SYSTEM ACTIVO: http://localhost:${PORT}`);
+    console.log(`📂 Directorio: ${__dirname}`);
+    console.log("==============================================");
+});
+
+// Manejo de errores del servidor (ej. puerto ocupado)
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`❌ El puerto ${PORT} ya está siendo usado por otro programa.`);
+    } else {
+        console.error("❌ Error al iniciar el servidor:", error.message);
+    }
 });
