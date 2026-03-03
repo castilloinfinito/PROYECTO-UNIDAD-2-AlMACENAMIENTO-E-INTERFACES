@@ -239,7 +239,9 @@
                             return `<td>${val || '-'}</td>`;
                         }).join('')}
                         <td class="actions-cell">
-                            <button class="action-btn edit-icon" onclick='abrirFormulario(${JSON.stringify(item)})' title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn edit-icon" onclick="prepararEdicion('${encodeURIComponent(JSON.stringify(item))}')" title="Editar">
+    <i class="fas fa-edit"></i>
+</button>
                             <button class="action-btn delete-icon" onclick="eliminar('${item._id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
