@@ -13,15 +13,11 @@ class GenericController {
    let query = this.model.find();
 
    // Verificamos qué campos tiene el esquema actual antes de hacer populate
-   const paths = this.model.schema.paths;
-
-   if (paths.medicoId) {
-    query = query.populate('medicoId');
-   }
-   
-   if (paths.pacienteId) {
-    query = query.populate('pacienteId');
-   }
+   // Reemplazar líneas 16 a 24 por:
+const paths = this.model.schema.paths;
+if (paths.medicoId) query = query.populate('medicoId', 'nombre');
+if (paths.pacienteId) query = query.populate('pacienteId', 'nombre');
+// Esto permite que el frontend vea el nombre del médico/paciente, no solo el ID.
 
    const data = await query.sort({ createdAt: -1 });
    res.json(data);
