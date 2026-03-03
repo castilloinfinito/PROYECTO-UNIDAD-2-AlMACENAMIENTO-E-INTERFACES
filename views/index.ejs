@@ -251,6 +251,12 @@
             }
         }
 
+// Nueva función para procesar la edición 
+function prepararEdicion(datosCodificados) {
+    const data = JSON.parse(decodeURIComponent(datosCodificados));
+    abrirFormulario(data);
+}
+
         document.getElementById('crud-form').onsubmit = async (e) => {
             e.preventDefault();
             const body = {};
