@@ -177,31 +177,44 @@
             cargarDatos();
         }
 
-        // LÓGICA DE FORMULARIO
-        function abrirFormulario(data = null) {
-            editId = data ? data._id : null;
-            const container = document.getElementById('dynamic-inputs');
-            document.getElementById('form-title').innerText = editId ? 'Editar Registro' : 'Nuevo ' + modActual.slice(0,-1);
-            
-            container.innerHTML = esquemas[modActual].inputs.map(i => {
-                const val = data ? (data[i.n] || '') : '';
-                if(i.t === 'select') {
-                    return `<div class="input-group">
-                        <label>${i.l}</label>
-                        <select id="in-${i.n}">
-                            ${i.o.map(opt => `<option value="${opt}" ${val == opt ? 'selected' : ''}>${opt}</option>`).join('')}
-                        </select>
-                    </div>`;
-                }
-                return `<div class="input-group">
-                    <label>${i.l}</label>
-                    <input type="${i.t}" id="in-${i.n}" value="${val}" required>
-                </div>`;
-            }).join('');
-            
-            document.getElementById('form-section').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+     async function abrirFormulario(data = null) {
+  editId = data ? data._id : null;
+  const container = document.getElementById('dynamic-inputs');
+  document.getElementById('form-title').innerText = editId ? 'Editar Registro' : 'Nuevo ' + modActual.slice(0,-1);
+  
+  let html = '';
+  for (const i of esquemas[modActual].inputs) {
+    const val = data ? (data[i.n]?._id || data[i.n] || '') : '';
+    
+    if (i.t === 'select') {
+      let opciones = i.o || [];
+      // Si el input depende de otra entidad (medicos/pacientes)
+      if (i.ref) {
+        const res = await fetch(`/api/${i.ref}`);
+        const lista = await res.json();
+        opciones = lista.map(item => ({ val: item._id, lab: item.nombre }));
+      } else {
+        opciones = opciones.map(o => ({ val: o, lab: o }));
+      }
+
+      html += `<div class="input-group">
+        <label>${i.l}</label>
+        <select id="in-${i.n}" required>
+          <option value="">-- Seleccione --</option>
+          ${opciones.map(opt => `<option value="${opt.val}" ${val == opt.val ? 'selected' : ''}>${opt.lab}</option>`).join('')}
+        </select>
+      </div>`;
+    } else {
+      html += `<div class="input-group">
+        <label>${i.l}</label>
+        <input type="${i.t}" id="in-${i.n}" value="${val}" required>
+      </div>`;
+    }
+  }
+  
+  container.innerHTML = html;
+  document.getElementById('form-section').style.display = 'block';
+}
 
         function cerrarFormulario() {
             document.getElementById('form-section').style.display = 'none';
