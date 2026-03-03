@@ -129,33 +129,43 @@
         let editId = null;
 
         // CONFIGURACIÓN DE ESQUEMAS
-        const esquemas = {
-            pacientes: { 
-                labels: ['Nombre', 'Cédula', 'Teléfono'], 
-                keys: ['nombre', 'ci', 'telefono'], 
-                inputs: [{n:'nombre', l:'Nombre', t:'text'}, {n:'ci', l:'Cédula', t:'text'}, {n:'telefono', l:'Teléfono', t:'text'}] 
-            },
-            medicos: { 
-                labels: ['Médico', 'Especialidad', 'MPPS'], 
-                keys: ['nombre', 'especialidad', 'mpps'], 
-                inputs: [{n:'nombre', l:'Nombre', t:'text'}, {n:'especialidad', l:'Especialidad', t:'text'}, {n:'mpps', l:'MPPS', t:'text'}] 
-            },
-            examenes: { 
-                labels: ['Orden', 'Examen', 'Precio'], 
-                keys: ['numeroOrden', 'nombre', 'precio'], 
-                inputs: [{n:'numeroOrden', l:'N° Orden', t:'text'}, {n:'nombre', l:'Nombre', t:'text'}, {n:'precio', l:'Precio', t:'number'}, {n:'medicoId', l:'ID Médico', t:'text'}] 
-            },
-            usuarios: { 
-                labels: ['Usuario', 'Rol', 'Cargo'], 
-                keys: ['username', 'rol', 'cargo'], 
-                inputs: [{n:'username', l:'Username', t:'text'}, {n:'rol', l:'Rol', t:'select', o:['Admin','Bioanalista','Recepcion']}, {n:'cargo', l:'Cargo', t:'text'}] 
-            },
-            resultados: { 
-                labels: ['Orden', 'Valor', 'Paciente'], 
-                keys: ['numeroOrden', 'valor', 'pacienteId'], 
-                inputs: [{n:'numeroOrden', l:'N° Orden', t:'text'}, {n:'valor', l:'Valor', t:'text'}, {n:'pacienteId', l:'ID Paciente', t:'text'}, {n:'medicoId', l:'ID Médico', t:'text'}] 
-            }
-        };
+       const esquemas = {
+  pacientes: {
+    labels: ['Nombre', 'Cédula', 'Teléfono'],
+    keys: ['nombre', 'ci', 'telefono'],
+    inputs: [{n:'nombre', l:'Nombre', t:'text'}, {n:'ci', l:'Cédula', t:'text'}, {n:'telefono', l:'Teléfono', t:'text'}]
+  },
+  medicos: {
+    labels: ['Médico', 'Especialidad', 'MPPS'],
+    keys: ['nombre', 'especialidad', 'mpps'],
+    inputs: [{n:'nombre', l:'Nombre', t:'text'}, {n:'especialidad', l:'Especialidad', t:'text'}, {n:'mpps', l:'MPPS', t:'text'}]
+  },
+  examenes: {
+    labels: ['N° Orden', 'Examen', 'Precio', 'Médico'],
+    keys: ['numeroOrden', 'nombre', 'precio', 'medicoId'],
+    inputs: [
+      {n:'numeroOrden', l:'N° Orden', t:'text'}, 
+      {n:'nombre', l:'Nombre de Examen', t:'text'}, 
+      {n:'precio', l:'Precio ($)', t:'number'}, 
+      {n:'medicoId', l:'Asignar Médico', t:'select', ref:'medicos'} // Cambio a select
+    ]
+  },
+  resultados: {
+    labels: ['Orden', 'Paciente', 'Valor', 'Fecha'],
+    keys: ['numeroOrden', 'pacienteId', 'valor', 'fecha'],
+    inputs: [
+      {n:'numeroOrden', l:'N° Orden', t:'text'}, 
+      {n:'pacienteId', l:'Paciente', t:'select', ref:'pacientes'}, // Cambio a select
+      {n:'medicoId', l:'Médico Solicitante', t:'select', ref:'medicos'},
+      {n:'valor', l:'Resultado Final', t:'text'}
+    ]
+  },
+  usuarios: {
+    labels: ['Usuario', 'Rol', 'Cargo'],
+    keys: ['username', 'rol', 'cargo'],
+    inputs: [{n:'username', l:'Username', t:'text'}, {n:'rol', l:'Rol', t:'select', o:['Admin','Bioanalista','Recepcion']}, {n:'cargo', l:'Cargo', t:'text'}]
+  }
+};
 
         // NAVEGACIÓN
         function switchModulo(m) {
