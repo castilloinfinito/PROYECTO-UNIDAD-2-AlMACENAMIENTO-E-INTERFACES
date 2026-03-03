@@ -53,13 +53,31 @@ if (conectarDB) {
 // --- DEFINICIÓN DE RUTAS ---
 
 // 1. Ruta para la Interfaz Web (Frontend)
-app.get('/', (req, res) => {
-    try {
-        res.render('index');
-    } catch (err) {
-        res.status(500).send("Error al renderizar la vista: " + err.message);
-    }
+// 1. Ruta de Login (Para mostrar el formulario de entrada)
+app.get('/login', (req, res) => {
+  res.render('login'); // Necesitaremos crear login.ejs
 });
+
+// 2. Ruta para procesar el Login
+app.post('/auth', async (req, res) => {
+  const { username, password } = req.body;
+  const { Usuario } = require('./models/LaboratorioModels');
+  
+  const user = await Usuario.findOne({ username, password });
+  
+  if (user && user.rol === 'Admin') {
+    req.session.usuarioLogueado = true;
+    res.redirect('/');
+  } else {
+    res.send('Acceso denegado: Usuario o clave incorrecta');
+  }
+});
+
+// 3. Proteger la ruta principal (Añadimos 'protegerVista')
+app.get('/', protegerVista, (req, res) => {
+  res.render('index');
+});
+
 
 // 2. Rutas de la API (Backend para Thunder Client)
 if (apiRoutes) {
