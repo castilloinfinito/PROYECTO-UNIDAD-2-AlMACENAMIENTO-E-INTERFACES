@@ -22,6 +22,24 @@ app.use(express.urlencoded({ extended: true }));
 
 // Servir archivos estáticos (CSS, imágenes) desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
+// middleware de sesión
+const session = require('express-session');
+
+app.use(session({
+  secret: 'clave_secreta_laboratorio', // Cambia esto por algo difícil
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Middleware para proteger la interfaz
+const protegerVista = (req, res, next) => {
+  if (req.session.usuarioLogueado) {
+    next();
+  } else {
+    res.redirect('/login'); // Si no hay sesión, al login
+  }
+};
+
 
 // --- CONFIGURACIÓN DE VISTAS (EJS) ---
 app.set('view engine', 'ejs');

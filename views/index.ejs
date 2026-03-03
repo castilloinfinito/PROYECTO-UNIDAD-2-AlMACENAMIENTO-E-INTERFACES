@@ -162,13 +162,13 @@
   },
   // Dentro de index.ejs, en la parte de usuarios:
 usuarios: {
-  labels: ['Usuario', 'Rol', 'Cargo', 'Clave'], // Añadido 'Clave'
+  labels: ['Usuario', 'Rol', 'Cargo', 'Clave'], 
   keys: ['username', 'rol', 'cargo', 'password'], // Añadido 'password'
   inputs: [
     {n:'username', l:'Username', t:'text'}, 
     {n:'rol', l:'Rol', t:'select', o:['Admin','Bioanalista','Recepcion']}, 
     {n:'cargo', l:'Cargo', t:'text'},
-    {n:'password', l:'Contraseña', t:'password'} // <-- Esto crea el cuadro para la clave
+    {n:'password', l:'Contraseña', t:'password'} // crea el cuadro para la clave
   ]
 },
 };
