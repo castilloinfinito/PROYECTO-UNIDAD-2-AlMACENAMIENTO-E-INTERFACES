@@ -160,11 +160,17 @@
       {n:'valor', l:'Resultado Final', t:'text'}
     ]
   },
-  usuarios: {
-    labels: ['Usuario', 'Rol', 'Cargo'],
-    keys: ['username', 'rol', 'cargo'],
-    inputs: [{n:'username', l:'Username', t:'text'}, {n:'rol', l:'Rol', t:'select', o:['Admin','Bioanalista','Recepcion']}, {n:'cargo', l:'Cargo', t:'text'}]
-  }
+  // Dentro de index.ejs, en la parte de usuarios:
+usuarios: {
+  labels: ['Usuario', 'Rol', 'Cargo', 'Clave'], // Añadido 'Clave'
+  keys: ['username', 'rol', 'cargo', 'password'], // Añadido 'password'
+  inputs: [
+    {n:'username', l:'Username', t:'text'}, 
+    {n:'rol', l:'Rol', t:'select', o:['Admin','Bioanalista','Recepcion']}, 
+    {n:'cargo', l:'Cargo', t:'text'},
+    {n:'password', l:'Contraseña', t:'password'} // <-- Esto crea el cuadro para la clave
+  ]
+},
 };
 
         // NAVEGACIÓN
