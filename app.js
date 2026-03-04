@@ -45,12 +45,17 @@ app.get('/login', (req, res) => {
 });
 
 // Ruta para procesar el Login (Verifica credenciales)
-app.post('/auth', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const { Usuario } = require('./models/LaboratorioModels');
 
-    // DEBUG: Esto te dirá en la consola qué está llegando del formulario
+app.post('/auth', async (req, res) => {
+  // ... anterior
+  const user = await Usuario.findOne({ username }); // Busca solo por usuario
+  if (user && user.password === password) { // usar bcrypt.compare
+      
+  }
+  
+});
+
+    // DEBUG: Esto  dirá en la consola qué está llegando del formulario
     console.log(`🔍 Intento de acceso - Usuario: ${username}, Clave: ${password}`);
 
     // Buscamos en la base de datos
