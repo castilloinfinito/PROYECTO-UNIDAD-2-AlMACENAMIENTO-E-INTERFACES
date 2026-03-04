@@ -25,14 +25,7 @@ class GenericController {
   }
 }
 
-// Esto permite que el frontend vea el nombre del médico/paciente, no solo el ID.
 
-   const data = await query.sort({ createdAt: -1 });
-   res.json(data);
-  } catch (e) {
-   res.status(500).json({ error: e.message });
-  }
- }
 // uso de promesas para crear documentos de la coleccion
   crear = async (req, res) => {
     try {
