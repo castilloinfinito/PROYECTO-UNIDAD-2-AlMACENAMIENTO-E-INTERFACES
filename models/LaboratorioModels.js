@@ -36,7 +36,7 @@ const ResultadoSchema = new mongoose.Schema({
 const UsuarioSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   rol: { type: String, enum: ['Admin', 'Bioanalista', 'Recepcion'], default: 'Bioanalista' },
-  cargo: { type: String, required: true },password: { type: String, required: true, default: '123456' }
+  cargo: { type: String, required: true }, password: { type: String, required: true }
 }, { timestamps: true });
   
 
