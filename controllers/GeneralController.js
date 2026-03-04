@@ -10,13 +10,21 @@ class GenericController {
   // CON async-await para ordenar ejecucion secuelcial de la funcion
    listar = async (req, res) => {
   try {
-   let query = this.model.find();
+    let query = this.model.find();
+    const paths = this.model.schema.paths;
 
-   // Verificamos qué campos tiene el esquema actual antes de hacer populate
-   // Reemplazar líneas 16 a 24 por:
-const paths = this.model.schema.paths;
-if (paths.medicoId) query = query.populate('medicoId', 'nombre');
-if (paths.pacienteId) query = query.populate('pacienteId', 'nombre');
+    // Control absoluto de relaciones: Si existe el campo, trae los datos del objeto
+    if (paths.medicoId) query = query.populate('medicoId', 'nombre');
+    if (paths.pacienteId) query = query.populate('pacienteId', 'nombre');
+    
+    // Si estamos en Resultados, el administrador necesita ver todo el contexto
+    const data = await query.sort({ createdAt: -1 }).lean(); 
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
 // Esto permite que el frontend vea el nombre del médico/paciente, no solo el ID.
 
    const data = await query.sort({ createdAt: -1 });
